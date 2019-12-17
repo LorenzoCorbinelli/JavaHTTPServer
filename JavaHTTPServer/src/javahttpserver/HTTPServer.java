@@ -17,7 +17,7 @@ public class HTTPServer implements Runnable
 {
     private Socket socket;
     private final boolean verbose;
-    static final File WEB_ROOT = new File(".");
+    static final File WEB_ROOT = new File("..");
     static final String DEFAULT_FILE = "index.html";
     static final String FILE_NOT_FOUND = "404.html";
     static final String METHOD_NOT_SUPPORTED = "not_supported.html";
@@ -97,7 +97,7 @@ public class HTTPServer implements Runnable
                 if (method.equals("GET")) 
                 { // GET method so we return content
                     byte[] fileData = readFileData(file, fileLength);
-                    // send HTTP Headers
+                   // send HTTP Headers
                     out.println("HTTP/1.1 200 OK");
                     out.println("Server: Java HTTP Server from SSaurel : 1.0");
                     out.println("Date: " + new Date());
@@ -175,7 +175,7 @@ public class HTTPServer implements Runnable
             return "text/plain";
     }
 	
-    private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException 
+    private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException
     {
         File file = new File(WEB_ROOT, FILE_NOT_FOUND);
         int fileLength = (int) file.length();
@@ -194,17 +194,34 @@ public class HTTPServer implements Runnable
         }
         else
         {
-            out.println("HTTP/1.1 404 File Not Found");
-            out.println("Server: Java HTTP Server from SSaurel : 1.0");
-            out.println("Date: " + new Date());
-            out.println("Content-type: " + content);
-            out.println("Content-length: " + fileLength);
-            out.println(); // blank line between headers and content, very important !
-            out.flush(); // flush character output stream buffer
+            try
+            {
+                File Dir = new File(WEB_ROOT, (fileRequested+'/'+DEFAULT_FILE));
+                fileData = readFileData(Dir, (int)Dir.length());
+                out.println("HTTP/1.1 200 OK");
+                out.println("Server: Java HTTP Server from SSaurel : 1.0");
+                out.println("Date: " + new Date());
+                out.println("Content-type: " + content);
+                out.println("Content-length: " + (int)Dir.length());
+                out.println();
+                out.flush();
+                
+                dataOut.write(fileData, 0, (int)Dir.length());
+                dataOut.flush();
+            }catch(FileNotFoundException fnfe)
+            {
+                System.out.println("Entrato nel catch");
+                out.println("HTTP/1.1 404 File Not Found");
+                out.println("Server: Java HTTP Server from SSaurel : 1.0");
+                out.println("Date: " + new Date());
+                out.println("Content-type: " + content);
+                out.println("Content-length: " + fileLength);
+                out.println(); // blank line between headers and content, very important !
+                out.flush(); // flush character output stream buffer
 
-            dataOut.write(fileData, 0, fileLength);
-            dataOut.flush();
-
+                dataOut.write(fileData, 0, fileLength);
+                dataOut.flush();
+            }
             if (verbose) 
             {
                 System.out.println("File " + fileRequested + " not found");
