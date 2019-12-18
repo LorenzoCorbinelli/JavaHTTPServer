@@ -194,21 +194,19 @@ public class HTTPServer implements Runnable
         }
         else
         {
-            try
+            File Dir = new File(WEB_ROOT, (fileRequested+'/'));
+            if(Dir.exists())
             {
-                File Dir = new File(WEB_ROOT, (fileRequested+'/'+DEFAULT_FILE));
-                fileData = readFileData(Dir, (int)Dir.length());
-                out.println("HTTP/1.1 200 OK");
+                out.println("HTTP/1.1 301 Moved Permanently");
+                out.println("Location: "+(fileRequested+'/'));
                 out.println("Server: Java HTTP Server from SSaurel : 1.0");
                 out.println("Date: " + new Date());
                 out.println("Content-type: " + content);
                 out.println("Content-length: " + (int)Dir.length());
                 out.println();
                 out.flush();
-                
-                dataOut.write(fileData, 0, (int)Dir.length());
-                dataOut.flush();
-            }catch(FileNotFoundException fnfe)
+            }
+            else
             {
                 out.println("HTTP/1.1 404 File Not Found");
                 out.println("Server: Java HTTP Server from SSaurel : 1.0");
