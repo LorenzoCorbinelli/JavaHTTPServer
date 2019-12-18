@@ -171,8 +171,9 @@ public class HTTPServer implements Runnable
     {
         if (fileRequested.endsWith(".htm")  ||  fileRequested.endsWith(".html"))
             return "text/html";
-        else
-            return "text/plain";
+        if(fileRequested.endsWith(".css"))
+            return "text/css";
+        return "text/plain";
     }
 	
     private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException
