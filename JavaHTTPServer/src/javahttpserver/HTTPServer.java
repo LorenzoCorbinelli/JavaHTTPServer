@@ -173,6 +173,10 @@ public class HTTPServer implements Runnable
             return "text/html";
         if(fileRequested.endsWith(".css"))
             return "text/css";
+        if(fileRequested.endsWith(".jpg") || fileRequested.endsWith(".jpeg"))
+            return "image/jpeg";
+        if(fileRequested.endsWith(".png"))
+            return "image/png";
         return "text/plain";
     }
 	
