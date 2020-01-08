@@ -12,20 +12,17 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Date;
 import java.util.StringTokenizer;
+import javax.xml.bind.annotation.XmlRootElement;
 
 public class HTTPServer implements Runnable
 {
     private Socket socket;
-    private final boolean verbose;
-    static final File WEB_ROOT = new File("..");
-    static final String DEFAULT_FILE = "index.html";
-    static final String FILE_NOT_FOUND = "404.html";
-    static final String METHOD_NOT_SUPPORTED = "not_supported.html";
-    
-    public HTTPServer(Socket s, boolean verbose)
+    private Config con;
+
+    public HTTPServer(Socket s, Config con)
     {
         socket = s;
-        this.verbose = verbose;
+        this.con = con;
     }
     
     @Override
@@ -57,13 +54,13 @@ public class HTTPServer implements Runnable
             // we support only GET and HEAD methods, we check
             if (!method.equals("GET")  &&  !method.equals("HEAD")) 
             {
-                if (verbose) 
+                if (con.verbose) 
                 {
                     System.out.println("501 Not Implemented : " + method + " method.");
                 }
 
                 // we return the not supported file to the client
-                File file = new File(WEB_ROOT, METHOD_NOT_SUPPORTED);
+                File file = new File(con.web_root, con.method_not_supported);
                 int fileLength = (int) file.length();
                 String contentMimeType = "text/html";
                 //read content to return to client
@@ -71,7 +68,7 @@ public class HTTPServer implements Runnable
 
                 // we send HTTP Headers with data to client
                 out.println("HTTP/1.1 501 Not Implemented");
-                out.println("Server: Java HTTP Server from SSaurel : 1.0");
+                out.println("Server: Java HTTP Server: 1.0");
                 out.println("Date: " + new Date());
                 out.println("Content-type: " + contentMimeType);
                 out.println("Content-length: " + fileLength);
@@ -86,10 +83,10 @@ public class HTTPServer implements Runnable
                 // GET or HEAD method
                 if (fileRequested.endsWith("/")) 
                 {
-                    fileRequested += DEFAULT_FILE;
+                    fileRequested += con.default_file;
                 }
 
-                File file = new File(WEB_ROOT, fileRequested);
+                File file = new File(con.web_root, fileRequested);
                 System.out.println(file.getAbsolutePath());
                 int fileLength = (int) file.length();
                 String content = getContentType(fileRequested);
@@ -99,7 +96,7 @@ public class HTTPServer implements Runnable
                     byte[] fileData = readFileData(file, fileLength);
                    // send HTTP Headers
                     out.println("HTTP/1.1 200 OK");
-                    out.println("Server: Java HTTP Server from SSaurel : 1.0");
+                    out.println("Server: Java HTTP Server: 1.0");
                     out.println("Date: " + new Date());
                     out.println("Content-type: " + content);
                     out.println("Content-length: " + fileLength);
@@ -110,7 +107,7 @@ public class HTTPServer implements Runnable
                     dataOut.flush();
                 }
 
-                if (verbose) 
+                if (con.verbose) 
                 {
                     System.out.println("File " + fileRequested + " of type " + content + " returned");
                 }
@@ -143,7 +140,7 @@ public class HTTPServer implements Runnable
                 System.err.println("Error closing stream : " + e.getMessage());
             } 
 
-            if (verbose) 
+            if (con.verbose) 
             {
                 System.out.println("Connection closed.\n");
             }
@@ -182,7 +179,7 @@ public class HTTPServer implements Runnable
 	
     private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException
     {
-        File file = new File(WEB_ROOT, FILE_NOT_FOUND);
+        File file = new File(con.web_root, con.file_not_found);
         int fileLength = (int) file.length();
         String content = "text/html";
         byte[] fileData = readFileData(file, fileLength);
@@ -190,8 +187,8 @@ public class HTTPServer implements Runnable
         if(fileRequested.equals("/pippo.php"))
         {
             out.println("HTTP/1.1 301 Moved Permanently");
-            out.println("Location: http://localhost:8080/pippo.html");
-            out.println("Server: Java HTTP Server from SSaurel : 1.0");
+            out.println("Location: /pippo.html");
+            out.println("Server: Java HTTP Server: 1.0");
             out.println("Date: " + new Date());
             out.println("Content-type: " + content);
             out.println("Content-length: " + fileLength);
@@ -199,12 +196,12 @@ public class HTTPServer implements Runnable
         }
         else
         {
-            File Dir = new File(WEB_ROOT, (fileRequested+'/'));
+            File Dir = new File(con.web_root, (fileRequested+'/'));
             if(Dir.exists())
             {
                 out.println("HTTP/1.1 301 Moved Permanently");
                 out.println("Location: "+(fileRequested+'/'));
-                out.println("Server: Java HTTP Server from SSaurel : 1.0");
+                out.println("Server: Java HTTP Server: 1.0");
                 out.println("Date: " + new Date());
                 out.println("Content-type: " + content);
                 out.println("Content-length: " + (int)Dir.length());
@@ -214,7 +211,7 @@ public class HTTPServer implements Runnable
             else
             {
                 out.println("HTTP/1.1 404 File Not Found");
-                out.println("Server: Java HTTP Server from SSaurel : 1.0");
+                out.println("Server: Java HTTP Server: 1.0");
                 out.println("Date: " + new Date());
                 out.println("Content-type: " + content);
                 out.println("Content-length: " + fileLength);
@@ -224,7 +221,7 @@ public class HTTPServer implements Runnable
                 dataOut.write(fileData, 0, fileLength);
                 dataOut.flush();
             }
-            if (verbose) 
+            if (con.verbose) 
             {
                 System.out.println("File " + fileRequested + " not found");
             }

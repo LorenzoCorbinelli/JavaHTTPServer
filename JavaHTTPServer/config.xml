@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<port>8080</port>
+	<verbose>true</verbose>
+	<web_root>..</web_root>
+	<default_file>index.html</default_file>
+	<file_not_found>404.html</file_not_found>
+	<method_not_supported>not_supported.html</method_not_supported>
+</config>

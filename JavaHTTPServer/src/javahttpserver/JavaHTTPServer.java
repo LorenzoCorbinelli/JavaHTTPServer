@@ -1,27 +1,33 @@
 package javahttpserver;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.util.Date;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 public class JavaHTTPServer 
 {
-    public static int port = 8080;
-    public static boolean verbose = true;
     
     public static void main(String[] args) 
     {
         try 
         {
-            ServerSocket serverConnect = new ServerSocket(port);
-            System.out.println("Server started.\nListening for connections on port : " + port + " ...\n");
-
+            JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Config con = (Config) jaxbUnmarshaller.unmarshal(new File("config.xml"));
+            ServerSocket serverConnect = new ServerSocket(con.port);
+            System.out.println("Server started.\nListening for connections on port : " + con.port + " ...\n");
+   
             // we listen until user halts server execution
             while (true) 
             {
-                HTTPServer myServer = new HTTPServer(serverConnect.accept(),verbose);
+                HTTPServer myServer = new HTTPServer(serverConnect.accept(), con);
 
-                if (verbose) 
+                if (con.verbose) 
                 {
                     System.out.println("Connecton opened. (" + new Date() + ")");
                 }
@@ -31,7 +37,7 @@ public class JavaHTTPServer
                 thread.start();
             }
 
-        } catch (IOException e) 
+        } catch (Exception e) 
         {
             System.err.println("Server Connection error : " + e.getMessage());
         }
