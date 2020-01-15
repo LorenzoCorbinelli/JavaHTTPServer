@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<anagrafica>
+    <elenco>
+        <Persona>
+            <nome>Mario</nome>
+            <cognome>Rossi</cognome>
+            <anno>1980-05-12</anno>
+            <sesso>M</sesso>
+        </Persona>
+        <Persona>
+            <nome>Luigi</nome>
+            <cognome>Verdi</cognome>
+            <anno>1974-11-03</anno>
+            <sesso>M</sesso>
+        </Persona>
+        <Persona>
+            <nome>Sara</nome>
+            <cognome>Bianchi</cognome>
+            <anno>2000-03-20</anno>
+            <sesso>F</sesso>
+        </Persona>
+        <Persona>
+            <nome>Andrea</nome>
+            <cognome>Gialli</cognome>
+            <anno>1960-08-03</anno>
+            <sesso>M</sesso>
+        </Persona>
+    </elenco>
+</anagrafica>

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.util.Date;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 public class JavaHTTPServer 
@@ -21,7 +22,8 @@ public class JavaHTTPServer
             Config con = (Config) jaxbUnmarshaller.unmarshal(new File("config.xml"));
             ServerSocket serverConnect = new ServerSocket(con.port);
             System.out.println("Server started.\nListening for connections on port : " + con.port + " ...\n");
-   
+
+            
             // we listen until user halts server execution
             while (true) 
             {

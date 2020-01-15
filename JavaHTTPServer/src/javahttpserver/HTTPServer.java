@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -12,6 +13,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Date;
 import java.util.StringTokenizer;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 
 public class HTTPServer implements Runnable
@@ -51,6 +54,11 @@ public class HTTPServer implements Runnable
             // we get file requested
             fileRequested = parse.nextToken().toLowerCase();
 
+            if(fileRequested.equals("/anagrafica"))
+            {
+                generateXML();
+                fileRequested+=".xml";
+            }
             // we support only GET and HEAD methods, we check
             if (!method.equals("GET")  &&  !method.equals("HEAD")) 
             {
@@ -147,6 +155,29 @@ public class HTTPServer implements Runnable
         }
     }
 
+    private void generateXML()
+    {
+        Anagrafica a = new Anagrafica();
+        Persona p1 = new Persona("Mario","Rossi","1980-05-12","M");
+        Persona p2 = new Persona("Luigi","Verdi","1974-11-03","M");
+        Persona p3 = new Persona("Sara","Bianchi","2000-03-20","F");
+        Persona p4 = new Persona("Andrea","Gialli","1960-08-03","M");
+        
+        a.add(p1);
+        a.add(p2);
+        a.add(p3);
+        a.add(p4);
+        
+        try
+        {
+            OutputStream out = new FileOutputStream("../anagrafica.xml");
+            JAXBContext jc = JAXBContext.newInstance(Anagrafica.class);
+            Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(a, out);
+        }catch(Exception e) {}
+    }
+    
     private byte[] readFileData(File file, int fileLength) throws IOException 
     {
         FileInputStream fileIn = null;
@@ -174,6 +205,8 @@ public class HTTPServer implements Runnable
             return "image/jpeg";
         if(fileRequested.endsWith(".png"))
             return "image/png";
+        if(fileRequested.endsWith(".xml"))
+            return "text/xml";
         return "text/plain";
     }
 	
